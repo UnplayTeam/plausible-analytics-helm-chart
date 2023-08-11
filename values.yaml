@@ -5,22 +5,24 @@
 
 disableAuth: false # Disables authentication completely, no registration, login will be shown.
 disableRegistration: false # Disables registration of new users, keep your admin credentials handy ;)
-baseURL: # The hosting url of the server, used for URL generation. In production systems, this should be your ingress host.
+baseURL: https://plausible.livetale.com
 
 adminUser:
-  email:  # Admin user's email
-  name:   # Display name admin user
-  password: # Admin user password
+  email: webmaster@unplay.com
+  name: admin
+  password: ZQ03n6fFHbbohJ0qAvIQ
 
 # SECRET_KEY_BASE is Helm randAlphaNum 90
 
 database: # Postgres Database
   enabled: true
-  url: # The URL to the Postgres Database Connection String see -> https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+  # use --set database.url=postgresql://<username>:<password>@<dbhost>:<dbport>/plausible?ssl=true
+  url: ""
 
 clickhouse: # Clickhouse Database
   enabled: true
-  url: # The URL Connection String to clickhouse DB see -> https://clickhouse.tech/docs/en/interfaces/http/
+  # use --set clickhouse.url=http://<clickhousehost>:8123/plausible_events_db
+  url: ""
 
 smtp: # Plausible uses and SMTP server to send transactional emails e.g. account activation, password reset, weekly reports, etc.
   enabled: false # Enable/Disable SMTP functionality
@@ -70,7 +72,7 @@ image:
   repository: plausible/analytics
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "v2"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -103,17 +105,18 @@ service:
   port: 80
 
 ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt
   hosts:
-    - host: chart-example.local
-      paths: []
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+    - host: plausible.livetale.com
+      paths: [/]
+  tls:
+    - secretName: livetale-plausible-cert
+      hosts:
+        - plausible.livetale.com
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
